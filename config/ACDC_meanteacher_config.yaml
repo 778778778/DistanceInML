@@ -1,0 +1,60 @@
+Arch:
+  name: enet
+  num_classes: 4
+Dataset:
+  augment: TensorAugment_2_dim
+  metainfo:
+    - getImage_GT
+    - foldernames:
+        - img
+        - gt
+  pin_memory: False
+  root_dir: data/ACDC-all
+  subfolders:
+    - img
+    - gt
+  transform: segment_transform((256,256))
+Trainer:
+  max_epoch: 300
+  save_dir: runs/ACDC_meanteacher
+  device: cuda:0
+  axises: [0,1,2,3]
+  metricname: metrics.csv
+
+Lab_Dataloader:
+  batch_size: 4
+  drop_last: true
+  num_workers: 4
+  pin_memory: false
+  shuffle: true
+  batch_sampler: [PatientSampler,
+                  {grp_regex: '(patient\d+_\d+)_\d+',shuffle: False}]
+Lab_Partitions:
+  num_models: 1
+  partition_sets: 02
+  partition_overlap: 1
+
+Optim:
+  name: Adam
+  lr: 0.0005
+  weight_decay: 0.0001
+
+Scheduler:
+  name: StepLR
+  step_size: 90
+  gamma: 0.1
+
+
+Unlab_Dataloader:
+  batch_size: 4
+  drop_last: true
+  num_workers: 4
+  pin_memory: false
+  shuffle: true
+
+Cot_Scheduler:
+  name: RampScheduler
+  begin_epoch: 10
+  max_epoch: 80
+  max_value: 1.0
+  ramp_mult: -5

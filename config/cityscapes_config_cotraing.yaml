@@ -1,0 +1,68 @@
+Arch:
+  name: deeplabenet
+  num_classes: 19
+
+Optim:
+  name: Adam
+  lr: 0.0005
+  weight_decay: 0.0002
+
+Scheduler:
+  name: StepLR
+  step_size: 100
+  gamma: 0.1
+
+Lab_Partitions:
+  split_ratio: 0.5
+  mix_ratio: 0.9
+  num: 2
+
+Dataset:
+  root_dir: data/Cityscapes
+  pin_memory: False
+  image_size: (512,1024)
+  augmentations:
+    rotate: 10                                    #[rotate -d to d degrees]
+    rcrop: [256,512]                                #[crop of size (h,w)]
+
+Lab_Dataloader:
+  pin_memory: False
+  batch_size: 4
+  num_workers: 4
+  shuffle: True
+  drop_last: True
+
+
+Trainer:
+  max_epoch: 300
+  save_dir: tmp/cityscapes_cotraining
+  device: cuda:0
+  metricname: metrics.csv
+
+Cot_Scheduler:
+  name: RampScheduler
+  begin_epoch: 10
+  max_epoch: 80
+  max_value: 1.0
+  ramp_mult: -5
+
+Adv_Scheduler:
+  name: RampScheduler
+  begin_epoch: 20
+  max_epoch: 100
+  max_value: 0.005
+  ramp_mult: -5
+
+Loss:
+  name: cross_entropy
+  weight: [  3.3632, 14.0408,  4.9860, 39.2617, 36.5217, 32.8975, 46.2848,
+             40.6888,  6.6957, 33.5658, 18.4602, 32.9788, 47.6773, 12.7070, 45.2075,
+             45.7849, 45.8268, 48.4074, 42.7600]
+
+StartTraining:
+  train_jsd: True
+  train_adv: True
+  save_train: False
+  save_val: True
+  augment_labeled_data: True
+  augment_unlabeled_data: True
